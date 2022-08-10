@@ -24,25 +24,32 @@ export const parseDir = async (
 
   debug(`Parsing src: ${src}, outDir: ${outDir}`);
   makeDir(outDir);
-
+  /* */
   files.forEach(async (file) => {
     debug(`Parsing ${file}`);
     let code = fs.readFileSync(file, "utf8");
-    const regex = /ifls (.+?)\n/g;
-    const matches = [...code.matchAll(regex)].map(([, code]) => code);
-
+    const regex = /((?:\/\*.+?\*\/[\n\s]+?|\/\/.+?\n)*?ifls (.+?));/g;
+    const matches = [...code.matchAll(regex)].map(([fullCode, code, func]) => ({
+      fullCode,
+      code,
+      func,
+    }));
+    debug(`Found ${matches.length} matches`);
+    debug(`Matches: ${matches.toString()}`);
     if (matches) {
       const completions = await Promise.all(
-        matches.map(async (match) => {
-          return match + (await openAi.call(match, 500));
-        })
+        matches.map(async (match) => ({
+          ...match,
+          resCode: match.func + (await openAi.call(match.code, 500)),
+        }))
       );
-      matches.forEach((match) => {
+      while (completions.length > 0) {
         const completion = completions.shift();
         if (completion) {
-          code = code.replace(`ifls ${match}`, completion);
+          debug(`Replacing ${completion.fullCode} with ${completion.resCode}`);
+          code = code.replace(completion.fullCode, completion.resCode);
         }
-      });
+      }
       const location = `${file.substring(0, file.length - 5)}.js`.replace(
         src,
         outDir
