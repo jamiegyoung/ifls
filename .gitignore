@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# IFLS files
+iflsconfig.json
+
+# Test folder
+test/
