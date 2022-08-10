@@ -24,3 +24,7 @@ or you can just pass them as arguments using the following
 |outDir|--out-dir, -o|
 |apiKey|--api-key, -a, -k|
 |srcDir|anywhere
+
+## TODO
+
+- Add support for nested files in the srcDir
