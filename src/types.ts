@@ -5,6 +5,6 @@ export interface Config {
 export interface ConfigV1 extends Config {
   outDir: string;
   srcDir: string;
-  openAIApiKey?: string;
+  openAIApiKey: string;
   exclude: string[];
 }
