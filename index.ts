@@ -9,16 +9,19 @@ const debug = Debug("ifls:index");
 const [, , ...givenArgs] = process.argv;
 
 const args = new Args(givenArgs);
+debug("Args:", args);
 
-const config: ConfigV1 =
-  args.configDir && fs.existsSync(args.configDir + "iflsconfig.json")
-    ? JSON.parse(fs.readFileSync(`${args.configDir}iflsconfig.json`, "utf8"))
-    : {
-        version: "1.0",
-        outDir: args.outDir || "./",
-        srcDir: args.workingDir || "./",
-        openAIApiKey: args.apiKey,
-      };
+const configJson = JSON.parse(
+  fs.readFileSync(`${args.configDir}/iflsconfig.json`, "utf8")
+) as ConfigV1;
+
+const config: ConfigV1 = {
+  version: configJson.version || "1.0",
+  outDir: args.outDir || configJson.outDir || "./",
+  srcDir: args.srcDir || configJson.srcDir || "./",
+  openAIApiKey: args.apiKey || configJson.openAIApiKey || "",
+  exclude: configJson.exclude || [],
+};
 
 debug("Config:", config);
 
@@ -30,4 +33,4 @@ if (!apiKey) {
 
 const openAi = new OpenAiInstance(apiKey);
 
-parseDir(openAi, config.srcDir, config.outDir);
+parseDir(openAi, config.srcDir, config.outDir, config.exclude);
