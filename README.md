@@ -1,11 +1,9 @@
 # IFLS
 
-Ever wanted to just not write that function? Well now you can with I'm Feeling Lucky Script!
-
-All you need to do is just *hope* it works on the day and all will be good
+I'm Feeling Lucky Script (IFLS) is a language that is a superset of JavaScript. Using OpenAI's [codex](https://beta.openai.com/docs/guides/code/introduction) it is possible to just skip writing the *boring* parts of the code and focus on defining the *interesting* parts. On compilation the code is generated using the `ifls` keyword and any comments before it, producing a (hopefully) working script.
 
 ## Example
-Example *.ifls file:
+Example `*.ifls` file:
 
 ```js
 // No special characters
