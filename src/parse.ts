@@ -9,9 +9,18 @@ export const parseDir = (
   outDir: string
 ) => {
   const files = fs.readdirSync(src);
-  if (!fs.existsSync(outDir)) {
-    throw new Error(`Output directory ${outDir} does not exist`);
+  if (fs.existsSync(outDir)) {
+    fs.rmSync(outDir, { recursive: true });
   }
+  fs.mkdirSync(outDir);
+
+  files
+    .filter((file) => fs.statSync(`${src}/${file}`).isDirectory())
+    .forEach((dir) => {
+      debug(`Recursing into ${dir}`);
+      parseDir(openAi, `${src}/${dir}`, `${outDir}/${dir}`);
+    });
+
   files
     .filter((file) => file.endsWith(".ifls"))
     .forEach(async (file) => {
