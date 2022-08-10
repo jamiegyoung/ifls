@@ -31,11 +31,10 @@ export const parseDir = async (
     const regex = /((?:\/\*.+?\*\/[\n\s]+?|\/\/.+?\n)*?ifls (.+?));/g;
     const matches = [...code.matchAll(regex)].map(([fullCode, code, func]) => ({
       fullCode,
-      code,
+      code: code.replace(/ifls\s*/g, ""),
       func,
     }));
     debug(`Found ${matches.length} matches`);
-    debug(`Matches: ${matches.toString()}`);
     if (matches) {
       const completions = await Promise.all(
         matches.map(async (match) => ({
@@ -52,7 +51,7 @@ export const parseDir = async (
       }
       const location = `${file.substring(0, file.length - 5)}.js`.replace(
         src,
-        outDir
+        outDir + "/"
       );
       debug("Writing to:", location);
       fs.mkdirSync(location.slice(0, outDir.lastIndexOf("/")), {

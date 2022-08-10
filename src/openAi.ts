@@ -23,7 +23,6 @@ export class OpenAiInstance {
       stop: "\n\n",
 
     });
-    debug(`Response: ${res.data}`);
     debug(`Choices: ${res.data.choices[0].text}`);
     return res.data.choices[0].text;
   }
