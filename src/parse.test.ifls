@@ -1,0 +1,10 @@
+import parseDir from './parse';
+import path from 'path';
+
+describe('parse', () => {
+  ifls function add(x, y);
+  
+  it('should work', () => {
+    expect(add(1, 2)).toBe(3);
+  });
+});

@@ -15,16 +15,14 @@ export class OpenAiInstance {
       engine: "code-davinci-002",
       prompt: code,
       maxTokens: length,
-      // How experimental the model is
-      temperature: .2,
+      // How experimental the model is (not very)
+      temperature: 0,
       // How many completions to return
       n: 1,
       stream: false,
       stop: "\n\n",
-
     });
     debug(`Choices: ${res.data.choices[0].text}`);
     return res.data.choices[0].text;
   }
 }
-

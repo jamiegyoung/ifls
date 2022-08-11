@@ -108,3 +108,6 @@ iflsconfig.json
 
 # Test folder
 test/
+
+# Generated tests
+*/**.test.js

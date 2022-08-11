@@ -3,6 +3,7 @@ import Debug from "debug";
 import { OpenAiInstance } from "./openAi";
 const debug = Debug("ifls:parse");
 import glob from "glob";
+import path from 'path';
 
 export const parseDir = async (
   openAi: OpenAiInstance,
@@ -39,7 +40,7 @@ export const parseDir = async (
       const completions = await Promise.all(
         matches.map(async (match) => ({
           ...match,
-          resCode: match.func + (await openAi.call(match.code, 500)),
+          resCode: match.func + (await openAi.call(match.code, 100)),
         }))
       );
       while (completions.length > 0) {
@@ -54,17 +55,16 @@ export const parseDir = async (
         outDir + "/"
       );
       debug("Writing to:", location);
-      fs.mkdirSync(location.slice(0, outDir.lastIndexOf("/")), {
-        recursive: true,
-      });
+      makeDir(path.dirname(location));
       fs.writeFileSync(location, code);
+      debug(`Wrote to ${location}`);
     }
   });
 
   function makeDir(dir: string) {
-    if (fs.existsSync(dir)) {
-      fs.rmSync(dir, { recursive: true });
+    debug("Making dir at ", dir);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    fs.mkdirSync(dir, { recursive: true });
   }
 };

@@ -3,7 +3,8 @@ import fs from "fs";
 import { Args } from "./args";
 import { parseDir } from "./src/parse";
 import { OpenAiInstance } from "./src/openAi";
-import { Config, ConfigV1 } from "./src/types";
+import { ConfigV1 } from "./src/types";
+import path from "path";
 const debug = Debug("ifls:index");
 
 const [, , ...givenArgs] = process.argv;
@@ -15,11 +16,11 @@ if (!fs.existsSync(`${args.configDir}/iflsconfig.json`)) {
   debug("Config file not found");
 }
 
-const configPath = `${args.configDir}/iflsconfig.json`;
+const configPath = path.join(args.configDir || "./", "iflsconfig.json");
 
 const configJson = (() =>
   fs.existsSync(configPath)
-    ? JSON.parse(fs.readFileSync(`${args.configDir}/iflsconfig.json`, "utf8"))
+    ? JSON.parse(fs.readFileSync(configPath, "utf8"))
     : {})() as ConfigV1;
 
 const config: ConfigV1 = {
