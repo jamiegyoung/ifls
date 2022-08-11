@@ -1,10 +1,16 @@
-import parseDir from './parse';
-import path from 'path';
-
 describe('parse', () => {
   ifls function add(x, y);
+
+  ifls function generatePassword(length);
   
-  it('should work', () => {
+  ifls const theFirstPresidentName = ";
+
+  it('should generate functions', () => {
     expect(add(1, 2)).toBe(3);
+    expect(generatePassword(10).length).toBe(10);
   });
+  
+  it('should generate variables', () => {
+    expect(theFirstPresidentName.toLowerCase()).toBe('george washington');
+  })
 });
