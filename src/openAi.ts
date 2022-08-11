@@ -9,7 +9,7 @@ export class OpenAiInstance {
     this.api = new OpenAI(apiKey);
   }
 
-  async call(code: string, length: number = 20) {
+  async call(code: string, length: number) {
     debug("making call for:", code);
     const res = await this.api.complete({
       engine: "code-davinci-002",

@@ -40,7 +40,7 @@ export const parseDir = async (
       const completions = await Promise.all(
         matches.map(async (match) => ({
           ...match,
-          resCode: match.func + (await openAi.call(match.code, 100)),
+          resCode: match.func + (await openAi.call(match.code, 500)),
         }))
       );
       while (completions.length > 0) {
