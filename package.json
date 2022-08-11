@@ -10,7 +10,8 @@
     "build": "tsc && ./bin/iflsc -o . . ",
     "start": "tsc & node lib/index.js",
     "dev": "tsc && DEBUG=ifls:* node lib/index.js",
-    "test": "tsc && ./bin/iflsc -o . . && DEBUG=ifls:* jest",
+    "dev:test": "tsc && ./bin/iflsc -o . . && DEBUG=ifls:* jest",
+    "test": "DEBUG=ifls:* jest",
     "test:watch": "DEBUG=ifls:* jest --watch",
     "test:coverage": "DEBUG=ifls:* jest --coverage"
   },
