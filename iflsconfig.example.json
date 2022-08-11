@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "outDir": "./test/build",
+  "srcDir": "./test/src",
+  "openAIApiKey": "cool api key here",
+  "exclude": [
+    "node_modules"
+  ]
+}
