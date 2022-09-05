@@ -6,6 +6,7 @@ const argNames = {
   apiKey: { names: ["--api-key", "-a", "-k"], type: "string" },
   outDir: { names: ["--out-dir", "-o"], type: "string" },
   ignoreCache: { names: ["--ignore-cache", "-i"], type: "boolean" },
+  dontCache: { names: ["--dont-cache", "-d"], type: "boolean" },
 };
 
 export class Args {
@@ -14,6 +15,7 @@ export class Args {
   outDir?: string;
   apiKey?: string;
   ignoreCache = false;
+  dontCache = false;
   [k: string]: any;
 
   constructor(args: string[]) {

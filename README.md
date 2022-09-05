@@ -65,4 +65,5 @@ or you can just pass them as arguments using the following
 | outDir       | --out-dir, -o      |                                                                                                    |
 | apiKey       | --api-key, -a, -k  |                                                                                                    |
 | ignore cache | --ignore-cache, -i | The compiler will ignore the cache on function generation but will save new functions to the cache |
+| don't cache  | --dont-cache, -i   | The compiler will not update or save to cache                                                      |
 | srcDir       | anywhere           |                                                                                                    |

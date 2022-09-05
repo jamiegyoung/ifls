@@ -11,7 +11,8 @@ export const parseDir = async (
   srcDir: string,
   outDir: string,
   exclude: string[],
-  ignoreCache: boolean
+  ignoreCache: boolean,
+  dontCache: boolean
 ) => {
   const cache = flatCache.load("ifls", path.resolve(`${srcDir}/.ifls.cache`));
   const files = await new Promise<string[]>((resolve, reject) => {
@@ -33,14 +34,17 @@ export const parseDir = async (
     debug(`Parsing ${file}`);
     let code = fs.readFileSync(file, "utf8");
     const regex = /((?:\/\*.+?\*\/[\n\s]+?|\/\/.+?\n)*?ifls (.+?));/g;
-    const matches = [...code.matchAll(regex)].map(([fullCode, code, func]) => ({
+    const matches: {
+      fullCode: string;
+      code: string;
+      func: string;
+    }[] = [...code.matchAll(regex)].map(([fullCode, code, func]) => ({
       fullCode,
       code: code.replace(/ifls\s*/g, ""),
       func,
     }));
     debug(`Found ${matches.length} matches`);
     if (matches) {
-      // TODO: Check if it exists in the cache before making the openAI call
       const completions = await Promise.all(
         matches.map(async (match) => {
           if (!ignoreCache) {
@@ -51,15 +55,19 @@ export const parseDir = async (
             }
           }
           const openAiRes = await openAi.call(match.code, 500);
-          debug(`Adding ${match.func} to cache`);
-          cache.setKey(match.func, openAiRes);
+          if (!dontCache) {
+            debug(`Adding ${match.func} to cache`);
+            cache.setKey(match.func, openAiRes);
+          }
           return {
             ...match,
             resCode: match.func + openAiRes,
           };
         })
       );
-      cache.save();
+      if (!dontCache) {
+        cache.save();
+      }
       while (completions.length > 0) {
         const completion = completions.shift();
         if (completion) {
