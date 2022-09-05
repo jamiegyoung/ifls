@@ -3,16 +3,19 @@ import Debug from "debug";
 import { OpenAiInstance } from "./openAi";
 const debug = Debug("ifls:parse");
 import glob from "glob";
-import path from 'path';
+import path from "path";
+import flatCache from "flat-cache";
 
 export const parseDir = async (
   openAi: OpenAiInstance,
-  src: string,
+  srcDir: string,
   outDir: string,
-  exclude: string[]
+  exclude: string[],
+  ignoreCache: boolean
 ) => {
+  const cache = flatCache.load("ifls", path.resolve(`${srcDir}/.ifls.cache`));
   const files = await new Promise<string[]>((resolve, reject) => {
-    glob(`${src}/**/*.ifls`, { ignore: exclude }, (err, files) => {
+    glob(`${srcDir}/**/*.ifls`, { ignore: exclude }, (err, files) => {
       if (err) {
         reject(err);
       } else {
@@ -23,7 +26,7 @@ export const parseDir = async (
 
   debug("Files:", files);
 
-  debug(`Parsing src: ${src}, outDir: ${outDir}`);
+  debug(`Parsing srcDir: ${srcDir}, outDir: ${outDir}`);
   makeDir(outDir);
   /* */
   files.forEach(async (file) => {
@@ -37,12 +40,26 @@ export const parseDir = async (
     }));
     debug(`Found ${matches.length} matches`);
     if (matches) {
+      // TODO: Check if it exists in the cache before making the openAI call
       const completions = await Promise.all(
-        matches.map(async (match) => ({
-          ...match,
-          resCode: match.func + (await openAi.call(match.code, 500)),
-        }))
+        matches.map(async (match) => {
+          if (!ignoreCache) {
+            const cacheRes = cache.getKey(match.func);
+            if (cacheRes) {
+              debug(`Found ${match.func} in cache`);
+              return { ...match, resCode: match.func + cacheRes };
+            }
+          }
+          const openAiRes = await openAi.call(match.code, 500);
+          debug(`Adding ${match.func} to cache`);
+          cache.setKey(match.func, openAiRes);
+          return {
+            ...match,
+            resCode: match.func + openAiRes,
+          };
+        })
       );
+      cache.save();
       while (completions.length > 0) {
         const completion = completions.shift();
         if (completion) {
@@ -51,7 +68,7 @@ export const parseDir = async (
         }
       }
       const location = `${file.substring(0, file.length - 5)}.js`.replace(
-        src,
+        srcDir,
         outDir + "/"
       );
       debug("Writing to:", location);

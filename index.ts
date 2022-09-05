@@ -41,4 +41,4 @@ if (!apiKey) {
 
 const openAi = new OpenAiInstance(apiKey);
 
-parseDir(openAi, config.srcDir, config.outDir, config.exclude);
+parseDir(openAi, config.srcDir, config.outDir, config.exclude, args.ignoreCache);

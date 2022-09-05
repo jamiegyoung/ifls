@@ -5,7 +5,7 @@ const debug = Debug("ifls:openAi");
 export class OpenAiInstance {
   api: OpenAI;
 
-  constructor(public apiKey: string) {
+  constructor(apiKey: string) {
     this.api = new OpenAI(apiKey);
   }
 
