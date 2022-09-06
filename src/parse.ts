@@ -65,9 +65,6 @@ export const parseDir = async (
           };
         })
       );
-      if (!dontCache) {
-        cache.save();
-      }
       while (completions.length > 0) {
         const completion = completions.shift();
         if (completion) {
@@ -85,6 +82,10 @@ export const parseDir = async (
       debug(`Wrote to ${location}`);
     }
   });
+
+  if (!dontCache) {
+    cache.save();
+  }
 
   function makeDir(dir: string) {
     debug("Making dir at ", dir);
