@@ -4,7 +4,7 @@ import { OpenAiInstance } from "./openAi";
 const debug = Debug("ifls:parse");
 import glob from "glob";
 import path from "path";
-import flatCache from "flat-cache";
+import Cache from "./cache";
 
 export const parseDir = async (
   openAi: OpenAiInstance,
@@ -14,7 +14,7 @@ export const parseDir = async (
   ignoreCache: boolean,
   dontCache: boolean
 ) => {
-  const cache = flatCache.load("ifls", path.resolve(`${srcDir}/.ifls.cache`));
+  const cache = new Cache("ifls", path.resolve(`${srcDir}/.ifls.cache`));
   const files = await new Promise<string[]>((resolve, reject) => {
     glob(`${srcDir}/**/*.ifls`, { ignore: exclude }, (err, files) => {
       if (err) {
@@ -29,7 +29,7 @@ export const parseDir = async (
 
   debug(`Parsing srcDir: ${srcDir}, outDir: ${outDir}`);
   makeDir(outDir);
-  files.forEach(async (file) => {
+  for await (const file of files) {
     debug(`Parsing ${file}`);
     let code = fs.readFileSync(file, "utf8");
     const regex = /((?:\/\*.+?\*\/[\n\s]+?|\/\/.+?\n)*?ifls (.+?));/g;
@@ -80,7 +80,7 @@ export const parseDir = async (
       fs.writeFileSync(location, code);
       debug(`Wrote to ${location}`);
     }
-  });
+  }
 
   if (!dontCache) {
     cache.save();
