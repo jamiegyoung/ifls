@@ -3,7 +3,7 @@ import Debug from "debug";
 import { OpenAiInstance } from "./openAi";
 const debug = Debug("ifls:parse");
 import glob from "glob";
-import path from 'path';
+import path from "path";
 
 export const parseDir = async (
   openAi: OpenAiInstance,
@@ -29,7 +29,9 @@ export const parseDir = async (
   files.forEach(async (file) => {
     debug(`Parsing ${file}`);
     let code = fs.readFileSync(file, "utf8");
-    const regex = /((?:\/\*.+?\*\/[\n\s]+?|\/\/.+?\n)*?ifls (.+?));/g;
+    const regex =
+      /((?:\/\/.*?\n|\/\*(?:.|\n)*?\*\/\s*?\n?\s*?)*?ifls\ {1}((?:\S).*?));/g;
+
     const matches = [...code.matchAll(regex)].map(([fullCode, code, func]) => ({
       fullCode,
       code: code.replace(/ifls\s*/g, ""),
