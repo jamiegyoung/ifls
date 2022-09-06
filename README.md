@@ -61,7 +61,7 @@ Make a file named `iflsconfig.json` in the source of your project and add the fo
 or you can just pass them as arguments using the following
 | property     |                    | notes                                                                                              |
 | ------------ | ------------------ | -------------------------------------------------------------------------------------------------- |
-| config       | --config, -c       |                                                                                                    |
+| config       | --config, -c       | Can be the file or directory the config is located                                                 |
 | outDir       | --out-dir, -o      |                                                                                                    |
 | apiKey       | --api-key, -a, -k  |                                                                                                    |
 | ignore cache | --ignore-cache, -i | The compiler will ignore the cache on function generation but will save new functions to the cache |
