@@ -29,7 +29,6 @@ export const parseDir = async (
 
   debug(`Parsing srcDir: ${srcDir}, outDir: ${outDir}`);
   makeDir(outDir);
-  /* */
   files.forEach(async (file) => {
     debug(`Parsing ${file}`);
     let code = fs.readFileSync(file, "utf8");
@@ -48,7 +47,7 @@ export const parseDir = async (
       const completions = await Promise.all(
         matches.map(async (match) => {
           if (!ignoreCache) {
-            const cacheRes = cache.getKey(match.func);
+            const cacheRes = cache.getKey(match.fullCode);
             if (cacheRes) {
               debug(`Found ${match.func} in cache`);
               return { ...match, resCode: match.func + cacheRes };
@@ -57,7 +56,7 @@ export const parseDir = async (
           const openAiRes = await openAi.call(match.code, 500);
           if (!dontCache) {
             debug(`Adding ${match.func} to cache`);
-            cache.setKey(match.func, openAiRes);
+            cache.setKey(match.fullCode, openAiRes);
           }
           return {
             ...match,
