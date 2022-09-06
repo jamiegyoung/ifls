@@ -1,5 +1,5 @@
 import Debug from "debug";
-import fs from "fs";
+import fs, { PathLike } from "fs";
 import { Args } from "./src/args";
 import { parseDir } from "./src/parse";
 import { OpenAiInstance } from "./src/openAi";
@@ -12,14 +12,32 @@ const [, , ...givenArgs] = process.argv;
 const args = new Args(givenArgs);
 debug("Args:", args);
 
-if (!fs.existsSync(`${args.configDir}/iflsconfig.json`)) {
-  debug("Config file not found");
-}
+const getDirOrFilePath = (
+  givenPath = "./",
+  name: string,
+  fallbackLocalDir: boolean
+): string | undefined => {
+  if (givenPath) {
+    const givenPathStats = fs.statSync(givenPath);
+    const concactedPath = path.join(givenPath, name);
+    if (givenPathStats.isDirectory() && fs.existsSync(concactedPath)) {
+      return concactedPath;
+    }
+    if (givenPathStats.isFile() && fs.existsSync(givenPath)) {
+      return givenPath;
+    }
+    // if the given path is neither a file nor directory, try and find it in the current working directory
+    const localPath = path.join("./", name);
+    if (fs.existsSync(localPath) && fallbackLocalDir) {
+      return localPath;
+    }
+  }
+};
 
-const configPath = path.join(args.configDir || "./", "iflsconfig.json");
+const configPath = getDirOrFilePath(args.config, "iflsconfig.json", true);
 
 const configJson = (() =>
-  fs.existsSync(configPath)
+  configPath
     ? JSON.parse(fs.readFileSync(configPath, "utf8"))
     : {})() as ConfigV1;
 

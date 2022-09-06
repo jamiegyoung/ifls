@@ -2,7 +2,7 @@ import Debug from "debug";
 const debug = Debug("ifls:args");
 
 const argNames = {
-  configDir: { names: ["--config", "-c"], type: "string" },
+  config: { names: ["--config", "-c"], type: "string" },
   apiKey: { names: ["--api-key", "-a", "-k"], type: "string" },
   outDir: { names: ["--out-dir", "-o"], type: "string" },
   ignoreCache: { names: ["--ignore-cache", "-i"], type: "boolean" },
@@ -11,7 +11,7 @@ const argNames = {
 
 export class Args {
   srcDir?: string;
-  configDir?: string;
+  config?: string;
   outDir?: string;
   apiKey?: string;
   ignoreCache = false;
@@ -39,8 +39,8 @@ export class Args {
           break;
       }
     }
-    if (!this.configDir) {
-      this.configDir = "./";
+    if (!this.config) {
+      this.config = "./";
     }
     // The final argument should be the working directory
     debug("Left over args:", args);
