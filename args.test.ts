@@ -1,4 +1,4 @@
-import { Args } from "./args";
+import { Args } from "./src/args";
 
 describe("args", () => {
   it("should be able to parse args", () => {
