@@ -53,7 +53,10 @@ export const parseDir = async (
               return { ...match, resCode: match.func + cacheRes };
             }
           }
-          const openAiRes = await openAi.call(match.code, 500);
+          const openAiRes = await (
+            await openAi.call(match.code, 500)
+          ).replace(/\n\+/g, "\n");
+
           if (!dontCache) {
             debug(`Adding ${match.func} to cache`);
             cache.setKey(match.fullCode, openAiRes);
