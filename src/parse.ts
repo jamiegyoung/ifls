@@ -4,15 +4,19 @@ import { OpenAiInstance } from "./openAi";
 const debug = Debug("ifls:parse");
 import glob from "glob";
 import path from "path";
+import Cache from "./cache";
 
 export const parseDir = async (
   openAi: OpenAiInstance,
-  src: string,
+  srcDir: string,
   outDir: string,
-  exclude: string[]
+  exclude: string[],
+  ignoreCache: boolean,
+  dontCache: boolean
 ) => {
+  const cache = new Cache("ifls", path.resolve(`${srcDir}/.ifls.cache`));
   const files = await new Promise<string[]>((resolve, reject) => {
-    glob(`${src}/**/*.ifls`, { ignore: exclude }, (err, files) => {
+    glob(`${srcDir}/**/*.ifls`, { ignore: exclude }, (err, files) => {
       if (err) {
         reject(err);
       } else {
@@ -23,16 +27,17 @@ export const parseDir = async (
 
   debug("Files:", files);
 
-  debug(`Parsing src: ${src}, outDir: ${outDir}`);
+  debug(`Parsing srcDir: ${srcDir}, outDir: ${outDir}`);
   makeDir(outDir);
-  /* */
-  files.forEach(async (file) => {
+  for await (const file of files) {
     debug(`Parsing ${file}`);
     let code = fs.readFileSync(file, "utf8");
-    const regex =
-      /((?:\/\/.*?\n|\/\*(?:.|\n)*?\*\/\s*?\n?\s*?)*?ifls\ {1}((?:\S).*?));/g;
-
-    const matches = [...code.matchAll(regex)].map(([fullCode, code, func]) => ({
+    const regex = /((?:\/\*.+?\*\/[\n\s]+?|\/\/.+?\n)*?ifls (.+?));/g;
+    const matches: {
+      fullCode: string;
+      code: string;
+      func: string;
+    }[] = [...code.matchAll(regex)].map(([fullCode, code, func]) => ({
       fullCode,
       code: code.replace(/ifls\s*/g, ""),
       func,
@@ -40,10 +45,27 @@ export const parseDir = async (
     debug(`Found ${matches.length} matches`);
     if (matches) {
       const completions = await Promise.all(
-        matches.map(async (match) => ({
-          ...match,
-          resCode: match.func + (await openAi.call(match.code, 500)),
-        }))
+        matches.map(async (match) => {
+          if (!ignoreCache) {
+            const cacheRes = cache.getKey(match.fullCode);
+            if (cacheRes) {
+              debug(`Found ${match.func} in cache`);
+              return { ...match, resCode: match.func + cacheRes };
+            }
+          }
+          const openAiRes = await (
+            await openAi.call(match.code, 500)
+          ).replace(/\n\+/g, "\n");
+
+          if (!dontCache) {
+            debug(`Adding ${match.func} to cache`);
+            cache.setKey(match.fullCode, openAiRes);
+          }
+          return {
+            ...match,
+            resCode: match.func + openAiRes,
+          };
+        })
       );
       while (completions.length > 0) {
         const completion = completions.shift();
@@ -53,7 +75,7 @@ export const parseDir = async (
         }
       }
       const location = `${file.substring(0, file.length - 5)}.js`.replace(
-        src,
+        srcDir,
         outDir + "/"
       );
       debug("Writing to:", location);
@@ -61,7 +83,11 @@ export const parseDir = async (
       fs.writeFileSync(location, code);
       debug(`Wrote to ${location}`);
     }
-  });
+  }
+
+  if (!dontCache) {
+    cache.save();
+  }
 
   function makeDir(dir: string) {
     debug("Making dir at ", dir);

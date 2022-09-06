@@ -1,6 +1,6 @@
 import Debug from "debug";
 import fs from "fs";
-import { Args } from "./args";
+import { Args } from "./src/args";
 import { parseDir } from "./src/parse";
 import { OpenAiInstance } from "./src/openAi";
 import { ConfigV1 } from "./src/types";
@@ -41,4 +41,11 @@ if (!apiKey) {
 
 const openAi = new OpenAiInstance(apiKey);
 
-parseDir(openAi, config.srcDir, config.outDir, config.exclude);
+parseDir(
+  openAi,
+  config.srcDir,
+  config.outDir,
+  config.exclude,
+  args.ignoreCache,
+  args.dontCache
+);

@@ -59,13 +59,11 @@ Make a file named `iflsconfig.json` in the source of your project and add the fo
 ```
 
 or you can just pass them as arguments using the following
-|property||
-|---|--|
-|configDir|--config, -c|
-|outDir|--out-dir, -o|
-|apiKey|--api-key, -a, -k|
-|srcDir|anywhere
-
-## TODO
-
-- Add support for nested files in the srcDir
+| property     |                    | notes                                                                                              |
+| ------------ | ------------------ | -------------------------------------------------------------------------------------------------- |
+| configDir    | --config, -c       |                                                                                                    |
+| outDir       | --out-dir, -o      |                                                                                                    |
+| apiKey       | --api-key, -a, -k  |                                                                                                    |
+| ignore cache | --ignore-cache, -i | The compiler will ignore the cache on function generation but will save new functions to the cache |
+| don't cache  | --dont-cache, -i   | The compiler will not update or save to cache                                                      |
+| srcDir       | anywhere           |                                                                                                    |
