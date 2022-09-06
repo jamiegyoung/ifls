@@ -32,7 +32,7 @@ export const parseDir = async (
   for await (const file of files) {
     debug(`Parsing ${file}`);
     let code = fs.readFileSync(file, "utf8");
-    const regex = /((?:\/\*.+?\*\/[\n\s]+?|\/\/.+?\n)*?ifls (.+?));/g;
+    const regex = /((?:\/\/.*?\n|\/\*(?:.|\n)*?\*\/\s*?\n?\s*?)*?ifls(?:\ (.*?))?);/g;
     const matches: {
       fullCode: string;
       code: string;
